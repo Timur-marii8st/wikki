@@ -1,0 +1,126 @@
+/* Общие стили для всего приложения */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: rgba(0, 0, 0, 0.8); /* Темный фон */
+  color: rgb(245, 226, 226); /* Белый цвет текста по умолчанию */
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Занимает всю высоту viewport */
+  padding: 20px;
+  box-sizing: border-box; /* Учитываем padding в размере */
+  position: relative; /* Для позиционирования кнопки настроек */
+}
+
+/* ручка перетаскивания окна */
+.titlebar {
+  -webkit-app-region: drag;
+  margin-top:-15px;
+  margin-left: 140px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0);
+  width: 24px;
+}
+
+/* Кнопка exit */
+.controls {
+  position: absolute;
+  background: none;
+  border: none;
+  top: 0;
+  right: 0;
+}
+
+/* крестик exit */
+.controls button {
+  background: none;      /* Убираем белый фон */
+  border: none;          /* Убираем границу */
+  padding: 5px;
+  color: rgb(255, 0, 0); /* Цвет иконки */
+  cursor: pointer;
+  -webkit-app-region: no-drag; /* чтобы кнопка не перетаскивала окно */
+}
+
+/* Кнопка настроек */
+.settings-button {
+  position: absolute;
+  top: 0px;
+  left: 4px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.settings-button:hover {
+  transform: rotate(30deg); /* Небольшой эффект при наведении */
+}
+
+/* Центральный блок приветствия */
+.greeting-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1; /* Занимает доступное пространство между заголовком и инпутом */
+  margin-top: 50px; /* Отступ сверху */
+  margin-bottom: 50px; /* Отступ снизу */
+}
+
+.wikki-image {
+  width: 110px; /* Размер картинки */
+  height: 160px;
+  margin-right: 0px;
+  margin-bottom: -30px;
+}
+
+.wikki-text {
+  font-size: 18px;
+  font-weight: 100;
+  color: white;
+}
+
+/* Нижняя строка ввода и кнопка отправки */
+.input-area {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 20px;
+  margin-top: 1px; /* Прижимает блок ко дну */
+}
+
+.input-field {
+  flex-grow: 1; /* Занимает все доступное пространство */
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #1d1d1d; /* Цвет текста в инпуте */
+  border: none;
+  border-radius: 20px;
+  padding: 7px 10px;
+  font-size: 1.0em;
+  outline: none; /* Убрать рамку при фокусе */
+}
+
+.input-field::placeholder {
+  color: #888;
+}
+
+.send-button {
+  background: transparent;
+  outline: none;
+  position: relative;
+  top: 1px;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 8px;
+  cursor: pointer;
+  color:white;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    html, body {width: 53%; height: 100%;  display: flex; justify-content: center; 
+                margin: 0; background: transparent; margin-left: 10px; overflow: hidden; }
+    #wikki { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    #wikki-img { width: 100%; height: 100%; cursor: pointer; user-select: none; }
+
+    .titlebar {-webkit-app-region: drag; margin-top:-8px; margin-left: 46px;
+              height: 24px; width: 10px;  position: absolute; color: white;}
+    
+  </style>
+</head>
+<body>
+  <div id="wikki">
+    <img src="./src/images/wikki_avatar.png" id="wikki-img" draggable="false" />
+  </div>
+  <div class="titlebar">
+    |||
+  </div>
+  <script type="module">
+    import { invoke } from '@tauri-apps/api/core';
+    import { getCurrentWindow } from '@tauri-apps/api/window';
+
+    const appWindow = getCurrentWindow();
+
+    document.getElementById('wikki-img').onclick = () => {
+      invoke('show_main_window');
+    };
+
+    document.getElementById('wikki-img').oncontextmenu = (e) => {
+      e.preventDefault();
+      invoke('show_context_menu');
+    };
+  </script>
+</body>
+</html>
