@@ -2,13 +2,83 @@
 <html>
 <head>
   <style>
-    html, body {width: 53%; height: 100%;  display: flex; justify-content: center; 
-                margin: 0; background: transparent; margin-left: 10px; overflow: hidden; }
-    #wikki { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    #wikki-img { width: 100%; height: 100%; cursor: pointer; user-select: none; }
+    /* Cтили для самого контейнера меню */
+    #custom-menu {
+      display: none;
+      position: absolute;
+      background: rgb(219, 219, 219);
+      border: 1px;
+      z-index: 1000;
+      list-style: none;
+      padding: 0; /* Добавим внутренние отступы сверху и снизу */
+      margin: 0;
+      border-radius: 2px; /*  скругление углов */
+      overflow: hidden; /* Обрезаем внутреннее содержимое по радиусу скругления */
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2); 
+    }
 
-    .titlebar {-webkit-app-region: drag; margin-top:-8px; margin-left: 46px;
-              height: 24px; width: 10px;  position: absolute; color: white;}
+    /* Стили для пунктов меню (кнопок) */
+    #custom-menu li {
+      padding: 1px; /* Увеличим отступы для удобства нажатия */
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease; /* Плавный переход для ховера */
+    }
+
+    /* << Добавляем линию-разделитель для всех элементов, кроме последнего */
+    #custom-menu li:not(:last-child) {
+      border-bottom: 1px solid #a0a0a0;
+    }
+
+    /* Эффект при наведении курсора для лучшего UX */
+    #custom-menu li:hover {
+      background-color: #d1d1d1;
+    }
+
+    html, body {
+      width: 75%; 
+      height: 100%;  
+      display: flex; 
+      justify-content: center; 
+      margin: 0; 
+      background: transparent; 
+      margin-left: 10px; 
+      overflow: hidden; 
+    }
+
+    #wikki { 
+      width: 100px; 
+      height: 100%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+
+    #wikki-img {
+      width: 100%; 
+      height: 100%; 
+    }
+
+    .titlebar {
+      -webkit-app-region: drag; 
+      margin-top:-8px; 
+      margin-left: 46px;
+      height: 240px; 
+      width: 70px;  
+      position: absolute; 
+      color: white;
+    }
+
+    .mainbutton { 
+      margin-top:-6px; 
+      margin-left: 42px; 
+      height: 10px;
+      width: 85px;  
+      position: absolute; 
+      color: white; 
+      cursor: pointer; 
+      user-select: none; 
+    }
     
   </style>
 </head>
@@ -16,23 +86,54 @@
   <div id="wikki">
     <img src="./src/images/wikki_avatar.png" id="wikki-img" draggable="false" />
   </div>
-  <div class="titlebar">
-    |||
+  <div class="mainbutton" id="mainbutton">
+    ::
   </div>
+  <div class="titlebar" id="titlebar">
+  </div>
+  <ul id="custom-menu" style="display:none; position:absolute; background:rgb(219, 219, 219); border:1px solid #636363; z-index:1000; list-style:none; padding:0; margin:0; font-size:12px;">
+  <li id="quick_ask">Ask</li>
+  <li id="chat">Chat</li>
+  <li id="hide">Hide</li>
+</ul>
   <script type="module">
-    import { invoke } from '@tauri-apps/api/core';
-    import { getCurrentWindow } from '@tauri-apps/api/window';
+    import { LogicalPosition } from '@tauri-apps/api/window';
+    import { Menu } from '@tauri-apps/api/menu';
+    import {invoke} from '@tauri-apps/api/core';
 
-    const appWindow = getCurrentWindow();
+    const mainButton = document.getElementById('mainbutton');
+    const menu = document.getElementById('custom-menu');
+    const chat = document.getElementById('chat');
+    const hide = document.getElementById('hide');
 
-    document.getElementById('wikki-img').onclick = () => {
+    mainButton.onclick = (e) => {
+      menu.style.display = 'block';
+      const menuWidth = menu.offsetWidth;
+      menu.style.left = (e.clientX - menuWidth) + 'px';
+      menu.style.top = e.clientY + 'px';
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== mainButton) {
+        menu.style.display = 'none';
+      }
+    });
+
+    chat.onclick = () => {
       invoke('show_main_window');
     };
 
-    document.getElementById('wikki-img').oncontextmenu = (e) => {
-      e.preventDefault();
-      invoke('show_context_menu');
+    hide.onclick = () => {
+      invoke('hide_assistant_window');
+      invoke('show_main_window');
     };
+
+    document.getElementById('titlebar').oncontextmenu = (e) => {
+      e.preventDefault(); 
+      invoke('show_main_window');
+    };
+    
+    
   </script>
 </body>
 </html>

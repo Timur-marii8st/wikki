@@ -8,7 +8,7 @@
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
-  },
+      },
   "app": {
     "windows": [
       {
@@ -30,11 +30,13 @@
         "height": 100,
         "decorations": false,
         "resizable": false,
+        "fullscreen": false,
         "alwaysOnTop": true,
         "transparent": true,
         "visible": true,
         "skipTaskbar": true,
-        "shadow": false
+        "shadow": false,
+        "maximizable": false
       }
     ],
     "security": {
