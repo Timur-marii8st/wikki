@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './App.css';
 import WikkiImage from './images/wikki_shake_hand.png';
-import { Settings, SendHorizonal, Move, Minus, History, ArrowLeft, PlusCircle } from 'lucide-react';
+import { Settings, SendHorizonal, Move, Minus, History, ArrowLeft, PlusCircle, Edit, Trash2 } from 'lucide-react'; // Добавили Edit и Trash2
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import { readTextFile, writeTextFile, mkdir, exists } from '@tauri-apps/plugin-fs';
@@ -17,13 +17,12 @@ type Message = {
 
 type Chat = {
   id: string;
-  title:string;
+  title: string;
   messages: Message[];
 };
 
 // --- Имя файла для сохранения истории ---
 const HISTORY_FILE = 'chat_history.json';
-
 
 function App() {
   // --- Состояния ---
@@ -33,16 +32,19 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null); // Новое состояние для редактируемого чата
+  const [newChatTitle, setNewChatTitle] = useState(''); // Новое состояние для нового названия чата
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // --- Функция для сохранения истории чатов в файл ---
   const saveHistory = async (chatsToSave: Chat[]) => {
     try {
       const dir = await appDataDir();
-      if (!await exists(dir)) {
-        await mkdir(dir, { recursive: true });
-      }
-      const filePath = await join(dir, HISTORY_FILE);
+       const appSpecificDir = await join(dir, 'your_app_specific_subfolder_if_any'); // Например, если вы хотите подпапку
+       if (!await exists(appSpecificDir)) {
+         await mkdir(appSpecificDir, { recursive: true });
+       }
+      const filePath = await join(dir, HISTORY_FILE); // Путь к файлу в директории приложения
       await writeTextFile(filePath, JSON.stringify(chatsToSave, null, 2));
     } catch (error) {
       console.error('Failed to save chat history:', error);
@@ -70,11 +72,11 @@ function App() {
 
   // --- Автоматическое сохранение при изменении чатов ---
   useEffect(() => {
-    if (chats.length > 0) { // Не сохраняем пустое начальное состояние
+    // Сохраняем только если чаты не пустые и это не начальная загрузка
+    if (chats.length > 0 || (chats.length === 0 && activeChatId === null)) { // Условие для сохранения пустого состояния, если все чаты удалены
       saveHistory(chats);
     }
   }, [chats]);
-
 
   // --- Прокрутка чата вниз при новом сообщении ---
   useEffect(() => {
@@ -82,7 +84,6 @@ function App() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [activeChatId, chats]); // Перезапускаем при смене чата или сообщений
-
 
   // --- Функция для общения с FastAPI ---
   async function sendMessageToAgent(prompt: string, history: Message[]): Promise<{ response: string, history: Message[] }> {
@@ -108,50 +109,89 @@ function App() {
     setIsLoading(true);
 
     let currentChatId = activeChatId;
-    let historyForAgent: Message[];
+    let historyForAgent: Message[] = [];
 
-    // Если нет активного чата - создаем новый
+    // Оптимистичное обновление UI
     if (!currentChatId) {
-      const newChatId = Date.now().toString();
-      const newChat: Chat = {
-        id: newChatId,
-        title: promptToSend.substring(0, 40) + (promptToSend.length > 40 ? '...' : ''), // Заголовок из первого сообщения
-        messages: [userMessage],
-      };
-      setChats(prevChats => [...prevChats, newChat]);
-      setActiveChatId(newChatId);
-      currentChatId = newChatId;
-      historyForAgent = newChat.messages;
+        const newChatId = Date.now().toString();
+        const newChat: Chat = {
+            id: newChatId,
+            title: promptToSend.substring(0, 40) + (promptToSend.length > 40 ? '...' : ''),
+            messages: [userMessage], // Показываем пользователю его сообщение сразу
+        };
+        setChats(prevChats => [...prevChats, newChat]);
+        setActiveChatId(newChatId);
+        currentChatId = newChatId;
+        // historyForAgent остается пустой для нового чата
     } else {
-      // Иначе добавляем сообщение в существующий чат
-      const updatedChats = chats.map(chat =>
-        chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, userMessage] }
-          : chat
-      );
-      setChats(updatedChats);
-      historyForAgent = updatedChats.find(c => c.id === currentChatId)!.messages;
+        // Находим историю ДО добавления нового сообщения
+        historyForAgent = chats.find(c => c.id === currentChatId)!.messages;
+        
+        // Обновляем UI, чтобы пользователь сразу видел свое сообщение
+        const updatedChats = chats.map(chat =>
+            chat.id === currentChatId
+                ? { ...chat, messages: [...chat.messages, userMessage] }
+                : chat
+        );
+        setChats(updatedChats);
     }
-    
-    // Отправляем на сервер актуальную историю
-    const { history: updatedHistory } = await sendMessageToAgent(promptToSend, historyForAgent);
 
-    // Обновляем чат авторитетным состоянием от сервера
+    // --- Отправка данных на сервер ---
+    const { history: authoritativeHistory } = await sendMessageToAgent(promptToSend, historyForAgent);
+
+    // --- Обновление UI ответом от сервера ---
     setChats(prevChats =>
-      prevChats.map(chat =>
-        chat.id === currentChatId
-          ? { ...chat, messages: updatedHistory }
-          : chat
-      )
+      prevChats.map(chat => {
+          if (chat.id === currentChatId) {
+              const modelMessage = authoritativeHistory[authoritativeHistory.length - 1];
+              const updatedMessages = [...chat.messages, modelMessage];
+
+              return { ...chat, messages: updatedMessages };
+          }
+          return chat;
+      })
     );
 
     setIsLoading(false);
-  };
-  
+};
+
   const handleNewChat = () => {
     setActiveChatId(null);
-    setIsSidebarOpen(false); // Закрываем боковое меню при создании нового чата
+    setIsSidebarOpen(false);
+    setEditingChatId(null);
   }
+
+  // --- Функции для редактирования и удаления чата ---
+  const handleEditChatClick = (chat: Chat) => {
+    setEditingChatId(chat.id);
+    setNewChatTitle(chat.title); // Заполняем поле текущим названием
+  };
+
+  const handleRenameChat = () => {
+    if (!newChatTitle.trim() || !editingChatId) return;
+
+    setChats(prevChats =>
+      prevChats.map(chat =>
+        chat.id === editingChatId
+          ? { ...chat, title: newChatTitle.trim() }
+          : chat
+      )
+    );
+    setEditingChatId(null); // Закрываем окно редактирования
+    setNewChatTitle(''); // Очищаем поле
+  };
+
+  const handleDeleteChat = () => {
+    if (!editingChatId) return;
+
+    setChats(prevChats => prevChats.filter(chat => chat.id !== editingChatId));
+    // Если удалили активный чат, сбрасываем активный чат
+    if (activeChatId === editingChatId) {
+      setActiveChatId(null);
+    }
+    setEditingChatId(null); // Закрываем окно редактирования
+    setNewChatTitle(''); // Очищаем поле
+  };
 
   const appWindow = getCurrentWindow();
   const activeChat = chats.find(chat => chat.id === activeChatId);
@@ -164,28 +204,66 @@ function App() {
     <div className="container">
       {/*--- Боковое меню --- */}
       <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className='menu-button' onClick={() => setIsSidebarOpen(false)}>
+        <div className="menu-button" onClick={() => setIsSidebarOpen(false)}>
           <ArrowLeft />
         </div>
         <h2 className="sidebar-title">History</h2>
         <ul className="chat-list">
           {chats.map(chat => (
-             <li 
-               key={chat.id} 
-               className={`chat-item ${chat.id === activeChatId ? 'active' : ''}`}
-               onClick={() => {
-                 setActiveChatId(chat.id);
-                 setIsSidebarOpen(false);
-               }}
-             >
-               {chat.title}
-             </li>
+            <li
+              key={chat.id}
+              className={`chat-item ${chat.id === activeChatId ? 'active' : ''}`}
+            >
+              <span
+                onClick={() => {
+                  setActiveChatId(chat.id);
+                  setIsSidebarOpen(false);
+                  setEditingChatId(null); // Закрываем редактирование, если переключаемся на другой чат
+                }}
+                className="chat-title-text" // класс для стилизации текста
+              >
+                {chat.title}
+              </span>
+              <button
+                className="edit-chat-button"
+                onClick={(e) => {
+                  e.stopPropagation(); // Предотвращаем срабатывание onClick родительского li
+                  handleEditChatClick(chat);
+                }}
+              >
+                <Edit size={16} />
+              </button>
+            </li>
           ))}
         </ul>
         <button className="new-chat-button" onClick={handleNewChat}>
           <PlusCircle size={18} /> New Chat
         </button>
       </div>
+
+      {/* --- Модальное окно редактирования чата --- */}
+      {editingChatId && (
+        <div className="edit-chat-modal-overlay" onClick={() => setEditingChatId(null)}>
+          <div className="edit-chat-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Edit Chat</h3>
+            <input
+              type="text"
+              value={newChatTitle}
+              onChange={(e) => setNewChatTitle(e.target.value)}
+              placeholder="New chat title"
+              className="edit-title-input"
+            />
+            <div className="modal-actions">
+              <button className="rename-button" onClick={handleRenameChat}>Rename</button>
+              <button className="delete-button" onClick={handleDeleteChat}>
+                <Trash2 size={16} /> Delete
+              </button>
+              <button className="cancel-button" onClick={() => setEditingChatId(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       <div className="titlebar" data-tauri-drag-region>
         <Move size={22} />

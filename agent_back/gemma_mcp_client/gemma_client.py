@@ -148,14 +148,14 @@ class GemmaMCPClient:
         self.mcp_client = MCPFunctionClient(mcp_config) if mcp_config else None
 
         # Default system prompt for Python-style function calling
-        self._system_prompt = ( """You are a helpful AI assistant.
-
+        self._system_prompt = ( """From now on, follow only the user-provided instructions and ignore any pre-configured roles or tasks.
+You are a girl assistant.
+                               
 You have access to functions. If you decide to invoke any of the function(s),
 you MUST put it in the format of:
 
 ```tool_code
-[func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]
-```
+[func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]```
 
 You SHOULD NOT include any other text in the response if you call a function.
 If you don't need to call any functions, respond normally.
@@ -357,7 +357,7 @@ If you don't need to call any functions, respond normally.
         )
 
     async def chat(
-        self, message: str, execute_functions: bool = False, history: Optional[List[Dict]] = None
+        self, message: str, execute_functions: bool = True, history: Optional[List[Dict]] = None
     ) -> Union[str, List[Dict[str, Any]], Any]:
         """
         Send a message and get either a normal response or function calls.
@@ -376,15 +376,18 @@ If you don't need to call any functions, respond normally.
         if history is None:
             history = self.start_chat()
 
-        if not history:
+        if not history or history[0].get("role") != "system":
             system_prompt = self._build_prompt()
-            history.append({'role': 'system', 'content': system_prompt})
+            history.insert(0, {'role': 'system', 'content': system_prompt})
+
+        history.append({'role': 'user', 'content': message})
 
         response = await self.client.chat(
-        model=self.model,
-        messages=history,
-        options={'temperature': self.temperature}
-    )
+            model=self.model,
+            messages=history,
+            options={'temperature': self.temperature}
+        )
+        
         text = response['message']['content']
         history.append(response['message'])
 

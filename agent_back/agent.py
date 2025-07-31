@@ -2,12 +2,11 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import BaseModel
-from gemma_mcp_client import GemmaMCPClient
+from gemma_mcp_client import GemmaMCPClient 
 from fastapi.middleware.cors import CORSMiddleware
 import gemma_mcp_server
 
 import inspect
-from types import FunctionType
 
 
 # Модели Pydantic для валидации 
@@ -22,13 +21,13 @@ class ChatResponse(BaseModel):
 # a standard MCP configuration
 MCP_CONFIG = {
     "mcpServers": {
-        "main_server": { 
-            "mcp_url": "http://localhost:8000"
+        "main_server": {
+            "url": "http://localhost:8000/sse/" 
         }
     }
 }
 
-OLLAMA_MODEL = "gemma3n:e4b"
+OLLAMA_MODEL = "hf.co/unsloth/gemma-3n-E4B-it-GGUF:Q4_K_XL"
 
 # Локальная функция, которая будет доступна агенту
 def get_user_info(user_id: int) -> dict:
@@ -42,18 +41,6 @@ def get_user_info(user_id: int) -> dict:
 # Создаем один экземпляр клиента для всего приложения
 agent_client = GemmaMCPClient(model=OLLAMA_MODEL, mcp_config=MCP_CONFIG)
 agent_client.add_function(get_user_info)
-
-async def iterate_module_functions(module):
-    # Получаем все функции модуля (имя, объект)
-    functions = inspect.getmembers(module, predicate=inspect.isfunction)
-    
-    for name, func in functions:
-        if name == "run_command":
-            continue  # Пропускаем run_command
-        print(f"Обнаружена функция: {name}")
-        await agent_client.add_function(func)
-
-iterate_module_functions(gemma_mcp_server)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

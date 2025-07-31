@@ -15,7 +15,7 @@ from docx import Document
 # --- PowerPoint (PPTX) ---
 from pptx import Presentation
 from pptx.shapes.autoshape import Shape # Импортируем Shape
-from pptx.enum.shapes import MSO_SHAPE_TYPE, PP_PLACEHOLDER
+from pptx.enum.shapes import PP_PLACEHOLDER
 
 # --- Excel (XLSX) ---
 from openpyxl import Workbook, load_workbook

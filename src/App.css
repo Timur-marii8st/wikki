@@ -388,3 +388,134 @@ input:checked + .slider:before {
 @keyframes blink {
   50% { opacity: 0.5; }
 }
+
+/* Sidebar enhancements */
+.chat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+
+.chat-item:hover {
+  background-color: #444;
+}
+
+.chat-item.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.chat-title-text {
+  flex-grow: 1; /* Позволяет тексту занимать все доступное пространство */
+  margin-right: 10px; /* Отступ от кнопки редактирования */
+  white-space: nowrap; /* Предотвращает перенос текста */
+  overflow: hidden; /* Обрезает текст, если он слишком длинный */
+  text-overflow: ellipsis; /* Добавляет многоточие, если текст обрезан */
+}
+
+.edit-chat-button {
+  background: none;
+  border: none;
+  color: #bbb;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.edit-chat-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Modal for editing/deleting chat */
+.edit-chat-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Выше всего остального */
+}
+
+.edit-chat-modal-content {
+  background-color: #282c34;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 300px; /* Фиксированная ширина модального окна */
+}
+
+.edit-chat-modal-content h3 {
+  color: white;
+  margin-top: 0;
+  text-align: center;
+}
+
+.edit-title-input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  font-size: 1em;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px; /* Отступ между кнопками */
+  margin-top: 10px;
+}
+
+.modal-actions button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.rename-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.rename-button:hover {
+  background-color: #0056b3;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #5a6268;
+}
