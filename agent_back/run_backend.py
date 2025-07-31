@@ -11,7 +11,8 @@ def run_mcp():
 async def main():
     # Запуск MCP в отдельном потоке
     print("Запускаем MCP-сервер в фоновом потоке...")
-
+    mcp_thread = threading.Thread(target=run_mcp, daemon=True)
+    mcp_thread.start()
 
     # Запуск FastAPI через Uvicorn
     print("Запускаем FastAPI-сервер (агент)...")
