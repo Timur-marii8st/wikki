@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './App.css';
 import WikkiImage from './images/wikki_shake_hand.png';
-import { Settings, SendHorizonal, Move, Minus, History, ArrowLeft, PlusCircle, Edit, Trash2 } from 'lucide-react'; // Добавили Edit и Trash2
+import { Settings, SendHorizonal, Move, Minus, History, ArrowLeft, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import { readTextFile, writeTextFile, mkdir, exists } from '@tauri-apps/plugin-fs';

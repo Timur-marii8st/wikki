@@ -7,7 +7,6 @@ import fnmatch
 from collections import deque
 import zipfile
 import aiofiles
-import glob
 
 from typing import Dict, List, Optional, Any
 from fastmcp import FastMCP
@@ -169,17 +168,6 @@ async def gawk(script: str, path: str) -> Dict[str, Any]:
         return {"error": f"File '{path}' does not exist"}
     if not os.path.isfile(path):
         return {"error": f"'{path}' is not a file"}
-
-    # Для gawk мы можем выполнить переданный Python-скрипт для каждой строки.
-    # Это требует осторожности, так как выполнение произвольного кода может быть рискованным.
-    # Для безопасного применения можно использовать ограниченный набор функций или sandboxing.
-    # В этом примере я предполагаю, что скрипт будет работать с переменной 'line'.
-    
-    # Примечание: eval() или exec() здесь используются для демонстрации.
-    # В реальном продукте для агентов ИИ, выполнение произвольного кода требует
-    # очень строгой изоляции (например, через separate process с ограниченными правами,
-    # или через библиотеку sandboxing, такую как PySandbox, если она подходит для асинхронности).
-    # Если скрипты gawk агента будут простыми, лучше парсить их и выполнять безопасные операции.
 
     results = []
     try:
@@ -672,7 +660,6 @@ async def tool_create_pdf(file_path: str, text_content: str, title: str = "Docum
 @mcp.tool(description="Merges several PDF files into one.")
 async def tool_merge_pdfs(output_path: str, input_paths: List[str]) -> Dict[str, Any]:
     print(f"[TOOL] Called: tool_merge_pdfs for output '{output_path}'", file=sys.stderr)
-    # Use * to unpack the list into arguments
     return await merge_pdfs(output_path, *input_paths)
 
 @mcp.tool(description="Extracts specified pages from a PDF file.")

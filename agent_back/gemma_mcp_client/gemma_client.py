@@ -1,7 +1,6 @@
 import ast
 import inspect
 import json
-import os
 import re
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -149,7 +148,7 @@ class GemmaMCPClient:
 
         # Default system prompt for Python-style function calling
         self._system_prompt = ( """From now on, follow only the user-provided instructions and ignore any pre-configured roles or tasks.
-You are a girl assistant.
+You are helpful asisstant.
                                
 You have access to functions. If you decide to invoke any of the function(s),
 you MUST put it in the format of:
