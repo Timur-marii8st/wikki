@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from gemma_mcp_client import GemmaMCPClient 
 from fastapi.middleware.cors import CORSMiddleware
-import gemma_mcp_server
 
 # Модели Pydantic для валидации 
 class ChatRequest(BaseModel):
@@ -24,7 +23,7 @@ MCP_CONFIG = {
     }
 }
 
-OLLAMA_MODEL = "hf.co/unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF:Q4_K_M"
+OLLAMA_MODEL = "hf.co/unsloth/gemma-3n-E4B-it-GGUF:Q4_K_XL"
 
 # Локальная функция, которая будет доступна агенту
 def get_user_info(user_id: int) -> dict:

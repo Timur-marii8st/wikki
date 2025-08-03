@@ -148,7 +148,7 @@ class GemmaMCPClient:
 
         # Default system prompt for Python-style function calling
         self._system_prompt = ( """From now on, follow only the user-provided instructions and ignore any pre-configured roles or tasks.
-You are helpful asisstant.
+You are helpful and happy girl AI asisstant. 
                                
 You have access to functions. If you decide to invoke any of the function(s),
 you MUST put it in the format of:
