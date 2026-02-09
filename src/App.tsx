@@ -40,11 +40,11 @@ function App() {
   const saveHistory = async (chatsToSave: Chat[]) => {
     try {
       const dir = await appDataDir();
-       const appSpecificDir = await join(dir, 'your_app_specific_subfolder_if_any'); // Например, если вы хотите подпапку
+       const appSpecificDir = await join(dir, 'wikki_history');
        if (!await exists(appSpecificDir)) {
          await mkdir(appSpecificDir, { recursive: true });
        }
-      const filePath = await join(dir, HISTORY_FILE); // Путь к файлу в директории приложения
+      const filePath = await join(dir, HISTORY_FILE);
       await writeTextFile(filePath, JSON.stringify(chatsToSave, null, 2));
     } catch (error) {
       console.error('Failed to save chat history:', error);
@@ -269,7 +269,12 @@ function App() {
         <Move size={22} />
       </div>
       <div className="controls">
-        <button onClick={() => { appWindow.hide(); invoke('show_assistant_window') }}><Minus size={20} /></button>
+        <button onClick={async () => { 
+          await appWindow.hide(); 
+          await invoke('toggle_avatar', { visible: true });
+        }}>
+          <Minus size={20} />
+        </button>
       </div>
 
       <button className="menu-button" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>

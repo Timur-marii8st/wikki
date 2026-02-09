@@ -1,16 +1,11 @@
 [package]
 name = "wikki"
-version = "0.1.0"
-description = "A Tauri App"
+version = "0.2.0"
+description = "Cute AI Desktop Companion"
 authors = ["marii8st"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
-# The `_lib` suffix may seem redundant but it is necessary
-# to make the lib name unique and wouldn't conflict with the bin name.
-# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "wikki_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
@@ -18,9 +13,42 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-opener = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-global-shortcut = "2"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client for Ollama
+reqwest = { version = "0.12", features = ["json"] }
+
+# Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri-plugin-fs = "2"
+
+# Screenshot
+screenshots = "0.8"
+png = "0.17"
+
+# Base64 encoding
+base64 = "0.22"
+
+# Random for screenshot timer
+rand = "0.8"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# TTS - системный синтезатор (простой старт)
+tts = "0.26"
+
+# Audio playback
+rodio = "0.19"
 

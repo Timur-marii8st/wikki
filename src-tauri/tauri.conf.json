@@ -1,44 +1,49 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "wikki",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "identifier": "com.wikki.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
-      },
+  },
   "app": {
     "windows": [
       {
         "label": "main",
         "url": "index.html",
-        "title": "Wikki",
-        "width": 350,
-        "height": 360,
-        "alwaysOnTop": true,
+        "title": "Wikki Chat",
+        "width": 400,
+        "height": 550,
+        "minWidth": 350,
+        "minHeight": 400,
         "transparent": true,
         "decorations": false,
-        "fullscreen": false
+        "visible": false,
+        "center": true
       },
       {
-        "label": "assistant",
-        "url": "assistant.html",
-        "title": "Assistant",
-        "width": 100,
-        "height": 100,
+        "label": "avatar",
+        "url": "avatar.html",
+        "title": "Wikki",
+        "width": 90,
+        "height": 240,
         "decorations": false,
-        "resizable": false,
-        "fullscreen": false,
-        "alwaysOnTop": true,
         "transparent": true,
-        "visible": true,
+        "alwaysOnTop": true,
+        "resizable": true,
         "skipTaskbar": true,
         "shadow": false,
-        "maximizable": false
+        "x": 1700,
+        "y": 200
       }
     ],
+    "trayIcon": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    },
     "security": {
       "csp": null
     }
